@@ -19,7 +19,7 @@ import           Data.Maybe (catMaybes)
 import           Data.Scientific (fromFloatDigits, scientific)
 import           Data.Text (Text)
 import           Data.Time (UTCTime)
-import Shopify.Types.InventoryPolicy (InventoryPolicy)
+import           Shopify.Types.InventoryPolicy (InventoryPolicy)
 
 data Variant = Variant { variantBarcode :: Maybe Text
                        , variantCompareAtPrice :: Maybe Float
@@ -31,7 +31,9 @@ data Variant = Variant { variantBarcode :: Maybe Text
                        , variantInventoryPolicy :: InventoryPolicy
                        , variantInventoryQuantity :: Int
                        , variantOldInventoryQuantity :: Int
-                       -- , variantOptions :: [???]
+                       , variantOption1 :: Maybe Text
+                       , variantOption2 :: Maybe Text
+                       , variantOption3 :: Maybe Text
                        , variantPosition :: Int
                        , variantPrice :: Float
                        , variantProductId :: Integer
@@ -43,8 +45,12 @@ data Variant = Variant { variantBarcode :: Maybe Text
                        , variantImageId :: Maybe Integer
                        }
 
+emptyIsNothing :: Maybe Text -> Maybe Text
+emptyIsNothing m = m >>= (\t -> if (t == "") then Nothing else Just t)
+
+
 instance FromJSON Variant where
-  parseJSON(Object v) = Variant <$> v .:? "barcode"
+  parseJSON(Object v) = Variant <$> (emptyIsNothing <$> v .:? "barcode")
                                 <*> v .:? "compare_at_price"
                                 <*> v .:  "created_at"
                                 <*> v .:  "fulfillment_service"
@@ -54,11 +60,14 @@ instance FromJSON Variant where
                                 <*> v .:  "inventory_policy"
                                 <*> v .:  "inventory_quantity"
                                 <*> v .:  "old_inventory_quantity"
+                                <*> v .:  "option1"
+                                <*> v .:  "option2"
+                                <*> v .:  "option3"
                                 <*> v .:  "position"
                                 <*> v .:  "price"
                                 <*> v .:  "product_id"
                                 <*> v .:  "requires_shipping"
-                                <*> v .:? "sku"
+                                <*> (emptyIsNothing <$> v .:? "sku")
                                 <*> v .:  "taxable"
                                 <*> v .:  "title"
                                 <*> v .:  "updated_at"
@@ -76,6 +85,9 @@ instance ToJSON Variant where
                   inventoryPolicy
                   inventoryQuantity
                   oldInventoryQuantity
+                  opt1
+                  opt2
+                  opt3
                   position
                   price
                   productId
@@ -102,6 +114,9 @@ instance ToJSON Variant where
                                ] ++ catMaybes
                                [ ("barcode" .=)              . A.String <$> barcode
                                , ("compare_at_price" .=)     . A.Number . fromFloatDigits <$> compareAtPrice
+                               , ("option1" .=)              . A.String <$> opt1
+                               , ("option2" .=)              . A.String <$> opt2
+                               , ("option3" .=)              . A.String <$> opt3
                                , ("inventory_management" .=) . A.String <$> inventoryManagement
                                , ("sku" .=)                  . A.String <$> sku
                                , ("image_id" .=)             . A.Number . flip scientific 0 <$> imageId

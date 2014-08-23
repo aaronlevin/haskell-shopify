@@ -1,8 +1,31 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 module Shopify.Types.Option(
   Option(..)
   ) where
 
-import Data.Map.Strict (Map)
+import Control.Applicative ((<$>), (<*>))
+import Control.Monad (mzero)
+import Data.Aeson ((.:), (.=), FromJSON(parseJSON), object, ToJSON(toJSON), Value(Object))
+
 import Data.Text (Text)
 
-newtype Option = Option { runOption :: Map Text Text }
+data Option = Option { optionId        :: Integer
+                     , optionName      :: Text
+                     , optionPosition  :: Int
+                     , optionProductId :: Integer
+                     }
+
+instance FromJSON Option where
+  parseJSON (Object v) = Option <$> v .: "id"
+                                <*> v .: "name"
+                                <*> v .: "position"
+                                <*> v .: "product_id"
+  parseJSON _          = mzero
+
+instance ToJSON Option where
+  toJSON (Option oid name position prod) = object [ "oid"        .= oid
+                                                  , "name"       .= name
+                                                  , "position"   .= position
+                                                  , "product_id" .= prod
+                                                  ]
