@@ -7,8 +7,7 @@ name:                shopify
 -- The package version.  See the Haskell package versioning policy (PVP)
 -- for standards guiding when and how versions should be incremented.
 -- http://www.haskell.org/haskellwiki/Package_versioning_policy
--- PVP summary:      +-+------- breaking API changes
---                   | | +----- non-breaking API additions
+-- PVP summary:      +-+------- breaking API changes --                   | | +----- non-breaking API additions
 --                   | | | +--- code changes with no API change
 version:             0.0.0.1
 
@@ -63,10 +62,14 @@ executable shopify
   -- Other library packages from which modules are imported.
   build-depends: base >=4.6 && <4.8
                , aeson
+               , bytestring
+               , conduit
                , comonad
                , containers
                , free
+               , http-conduit
                , mtl
+               , resourcet
                , scientific
                , text
                , time
