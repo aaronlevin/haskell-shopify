@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Shopify.Types.Product(
+module Network.API.Shopify.Types.Product (
   Product( .. )
   ) where
 
@@ -11,9 +11,9 @@ import qualified Data.Aeson as A
 import           Data.Maybe (catMaybes)
 import           Data.Text (intercalate, splitOn, Text)
 import           Data.Time.Clock (UTCTime)
-import           Shopify.Types.Image (Image)
-import           Shopify.Types.Option (Option)
-import           Shopify.Types.Variant (Variant)
+import           Network.API.Shopify.Types.Image (Image)
+import           Network.API.Shopify.Types.Option (Option)
+import           Network.API.Shopify.Types.Variant (Variant)
 
 data Product = Product { productBodyHtml :: Text
                        , productCreatedAt :: UTCTime

@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Shopify.Types.Metafield(
+module Network.API.Shopify.Types.Metafield (
   Metafield(..)
   ) where
 
@@ -18,7 +18,7 @@ import qualified Data.Aeson as A
 import           Data.Maybe (catMaybes)
 import           Data.Text (Text)
 import           Data.Time (UTCTime)
-import           Shopify.Types.MetafieldType (MetafieldType)
+import           Network.API.Shopify.Types.MetafieldType (MetafieldType)
 
 data Metafield = Metafield { metafieldCreatedAt :: UTCTime
                            , metafieldDescription :: Maybe Text
