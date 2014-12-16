@@ -81,14 +81,16 @@ executable shopify
   -- Base language which the package is written in.
   default-language:    Haskell2010
 
-test-suite Tests
+test-suite shopify-tests
   hs-source-dirs: test
   main-is: tests.hs
   Type: exitcode-stdio-1.0
-  build-depends:       base ==4.6.*, Cabal >= 1.16.0
-                       , shopify
-                       , QuickCheck
-                       , HUnit
-                       , test-framework
-                       , test-framework-hunit
-                       , test-framework-quickcheck2
+  build-depends: base
+               , shopify
+               , QuickCheck
+               , HUnit
+               , test-framework
+               , test-framework-hunit
+               , test-framework-quickcheck2
+               , raw-strings-qq
+                       

@@ -1,0 +1,8 @@
+server:
+    build: .
+    volumes: 
+        - ./src:/opt/library/src
+        - ./test:/opt/library/test
+        - ./shopify.cabal:/opt/library/shopify.cabal
+    command: cabal test
+
