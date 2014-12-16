@@ -83,8 +83,9 @@ executable shopify
 
 test-suite shopify-tests
   hs-source-dirs: test
-  main-is: tests.hs
+  main-is: Main.hs
   Type: exitcode-stdio-1.0
+  default-language: Haskell2010
   build-depends: base
                , shopify
                , QuickCheck
