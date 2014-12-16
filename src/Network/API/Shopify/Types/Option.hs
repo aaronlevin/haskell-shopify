@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Shopify.Types.Option(
+module Network.API.Shopify.Types.Option(
   Option(..)
   ) where
 

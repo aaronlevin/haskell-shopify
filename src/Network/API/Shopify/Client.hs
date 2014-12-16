@@ -1,6 +1,6 @@
 {-# LANGUAGE DeriveFunctor, Rank2Types, OverloadedStrings #-}
 
-module Shopify.Client (
+module Network.API.Shopify.Client (
   ) where
 
 import Control.Applicative ((<$>))
@@ -13,7 +13,7 @@ import Data.Conduit (ResumableSource)
 import Data.IORef (IORef, readIORef)
 import Network.HTTP.Conduit (http)
 import Network.HTTP.Client.Conduit (Manager, method, Response, Request, withManager)
-import Shopify.Types (Product)
+import Network.API.Shopify.Types (Product)
 import Data.Text (Text)
 
 data HTTPAlgebra req resp next = GET  req (resp -> next)

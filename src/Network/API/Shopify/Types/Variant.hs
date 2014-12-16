@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Shopify.Types.Variant(
+module Network.API.Shopify.Types.Variant(
   Variant(..)
   ) where
 
@@ -19,7 +19,7 @@ import           Data.Maybe (catMaybes)
 import           Data.Scientific (fromFloatDigits, scientific)
 import           Data.Text (Text)
 import           Data.Time (UTCTime)
-import           Shopify.Types.InventoryPolicy (InventoryPolicy)
+import           Network.API.Shopify.Types.InventoryPolicy (InventoryPolicy)
 
 data Variant = Variant { variantBarcode :: Maybe Text
                        , variantCompareAtPrice :: Maybe Float

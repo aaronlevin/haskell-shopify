@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Shopify.Types.Image(
+module Network.API.Shopify.Types.Image(
   Image(..)
   ) where
 

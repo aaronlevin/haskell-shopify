@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Shopify.Types.MetafieldType(
+module Network.API.Shopify.Types.MetafieldType (
   MetafieldType(..)
   ) where
 

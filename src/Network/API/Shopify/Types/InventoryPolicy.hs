@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Shopify.Types.InventoryPolicy(
+module Network.API.Shopify.Types.InventoryPolicy(
   InventoryPolicy(..)
   ) where
 
