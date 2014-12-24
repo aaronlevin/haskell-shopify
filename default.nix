@@ -28,7 +28,10 @@ in rec {
       haskell.testFrameworkQuickcheck2
 
       # editor tooling
+      haskell.ghc
       haskell.ghcMod
+      haskell.cabalInstall
+      nixpkgs.vimHugeX
     ];
   };
 }
