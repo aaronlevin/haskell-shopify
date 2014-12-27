@@ -22,18 +22,21 @@ import Data.Text.Encoding (encodeUtf8)
 -- | crudable types
 data Crudable = MetafieldCRUD
               | ProductCRUD
+              | ProductsR
               | VariantCRUD
 
 -- | singleton support
 data SCrudable (c :: Crudable) :: * where
     SMetafield :: SCrudable 'MetafieldCRUD
     SProduct   :: SCrudable 'ProductCRUD
+    SProducts  :: SCrudable 'ProductsR
     SVariant   :: SCrudable 'VariantCRUD
 
 -- | type family that maps a Crudable type to its type
 type family CrudBase (c :: Crudable) :: * where
     CrudBase 'MetafieldCRUD = Metafield
     CrudBase 'ProductCRUD   = Product
+    CrudBase 'ProductsR     = [Product]
     CrudBase 'VariantCRUD   = Variant
 
 -- | type family mapping: (Crudable Type) X (Interface) -> required data to create
