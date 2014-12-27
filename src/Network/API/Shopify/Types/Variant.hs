@@ -1,7 +1,8 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Network.API.Shopify.Types.Variant(
-  Variant(..)
+    Variant(..)
+  , VariantId(..)
   ) where
 
 import           Control.Applicative ((<$>), (<*>))
@@ -21,12 +22,14 @@ import           Data.Text (Text)
 import           Data.Time (UTCTime)
 import           Network.API.Shopify.Types.InventoryPolicy (InventoryPolicy)
 
+newtype VariantId = VariantId Int
+
 data Variant = Variant { variantBarcode :: Maybe Text
                        , variantCompareAtPrice :: Maybe Float
                        , variantCreatedAt :: UTCTime
                        , variantFulfillmentService :: Text
                        , variantGrams :: Int
-                       , variantId :: Integer
+                       , variantId :: VariantId
                        , variantInventoryManagement :: Maybe Text
                        , variantInventoryPolicy :: InventoryPolicy
                        , variantInventoryQuantity :: Int
@@ -46,7 +49,7 @@ data Variant = Variant { variantBarcode :: Maybe Text
                        }
 
 emptyIsNothing :: Maybe Text -> Maybe Text
-emptyIsNothing m = m >>= (\t -> if (t == "") then Nothing else Just t)
+emptyIsNothing m = m >>= (\t -> if t == "" then Nothing else Just t)
 
 
 instance FromJSON Variant where
@@ -55,7 +58,7 @@ instance FromJSON Variant where
                                 <*> v .:  "created_at"
                                 <*> v .:  "fulfillment_service"
                                 <*> v .:  "grams"
-                                <*> v .:  "id"
+                                <*> (VariantId <$> v .:  "id")
                                 <*> v .:? "inventory_management"
                                 <*> v .:  "inventory_policy"
                                 <*> v .:  "inventory_quantity"
@@ -80,7 +83,7 @@ instance ToJSON Variant where
                   createdAt
                   fulfillmentService
                   grams
-                  varId 
+                  (VariantId varId)
                   inventoryManagement
                   inventoryPolicy
                   inventoryQuantity

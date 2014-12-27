@@ -10,8 +10,11 @@ in rec {
       haskell.aeson
       haskell.comonad
       haskell.conduit
+      haskell.dataDefault
+      haskell.exceptions
       haskell.free
       haskell.httpConduit
+      haskell.httpTypes
       haskell.mtl
       haskell.resourcet
       haskell.scientific
@@ -32,6 +35,9 @@ in rec {
       haskell.ghcMod
       haskell.cabalInstall
       nixpkgs.vimHugeX
+
+      # random / delete
+      haskell.transformers
     ];
   };
 }

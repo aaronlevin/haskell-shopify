@@ -1,11 +1,14 @@
-module Network.API.Shopify.Types ( 
+module Network.API.Shopify.Types (
     Image(..)
   , InventoryPolicy(..)
   , Metafield(..)
+  , MetafieldId(..)
   , MetafieldType(..)
   , Option(..)
   , Product(..)
+  , ProductId(..)
   , Variant(..)
+  , VariantId(..)
   ) where
 
 import Network.API.Shopify.Types.Image

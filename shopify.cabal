@@ -23,13 +23,17 @@ library
       , conduit
       , comonad
       , containers
+      , data-default
+      , exceptions
       , free
       , http-conduit
+      , http-types
       , mtl
       , resourcet
       , scientific
       , text
       , time
+      , transformers
       , unordered-containers
 
   hs-source-dirs: 
@@ -55,4 +59,3 @@ test-suite shopify-tests
       , test-framework-hunit
       , test-framework-quickcheck2
       , raw-strings-qq
-                       

@@ -1,7 +1,8 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Network.API.Shopify.Types.Product (
-  Product( .. )
+    Product( .. )
+  , ProductId( .. )
   ) where
 
 import           Control.Applicative ((<$>), (<*>))
@@ -15,10 +16,12 @@ import           Network.API.Shopify.Types.Image (Image)
 import           Network.API.Shopify.Types.Option (Option)
 import           Network.API.Shopify.Types.Variant (Variant)
 
+newtype ProductId = ProductId Int
+
 data Product = Product { productBodyHtml :: Text
                        , productCreatedAt :: UTCTime
                        , productHandle :: Text
-                       , productId :: Integer
+                       , productId :: ProductId
                        , productImages :: [Image]
                        , productOptions :: [Option]
                        , productType :: Text
@@ -39,7 +42,7 @@ instance FromJSON Product where
   parseJSON (Object v) = Product <$> v .: "body_html"
                                  <*> v .: "created_at"
                                  <*> v .: "handle"
-                                 <*> v .: "id"
+                                 <*> (ProductId <$> v .: "id")
                                  <*> v .: "images"
                                  <*> v .: "options"
                                  <*> v .: "product_type"
@@ -57,7 +60,7 @@ instance ToJSON Product where
   toJSON (Product pBody
                   pCreatedAt
                   pHandle
-                  pId
+                  (ProductId pId)
                   pImages
                   pOptions
                   pType
@@ -78,7 +81,7 @@ instance ToJSON Product where
                                , "product_type"    .= pType
                                , "published_at"    .= pPublishedAt
                                , "published_scope" .= pPublishedScope
-                               , "tags"            .= (intercalate "," pTags)
+                               , "tags"            .= intercalate "," pTags
                                , "title"           .= pTitle
                                , "updated_at"      .= pUpdatedAt
                                , "variants"        .= pVariants

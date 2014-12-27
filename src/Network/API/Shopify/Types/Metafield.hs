@@ -1,7 +1,8 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Network.API.Shopify.Types.Metafield (
-  Metafield(..)
+    Metafield(..)
+  , MetafieldId(..)
   ) where
 
 import           Control.Applicative ((<$>), (<*>))
@@ -20,9 +21,11 @@ import           Data.Text (Text)
 import           Data.Time (UTCTime)
 import           Network.API.Shopify.Types.MetafieldType (MetafieldType)
 
+newtype MetafieldId = MetafieldId Int
+
 data Metafield = Metafield { metafieldCreatedAt :: UTCTime
                            , metafieldDescription :: Maybe Text
-                           , metafieldId :: Integer
+                           , metafieldId :: MetafieldId
                            , metafieldKey :: Text
                            , metafieldNamespace :: Text
                            , metafieldOwnerId :: Integer
@@ -35,7 +38,7 @@ data Metafield = Metafield { metafieldCreatedAt :: UTCTime
 instance FromJSON Metafield where
   parseJSON(Object v) = Metafield <$> v .:  "created_at"
                                   <*> v .:? "description"
-                                  <*> v .:  "id"
+                                  <*> (MetafieldId <$> v .:  "id")
                                   <*> v .:  "key"
                                   <*> v .:  "namespace"
                                   <*> v .:  "owner_id"
@@ -48,7 +51,7 @@ instance FromJSON Metafield where
 instance ToJSON Metafield where
   toJSON (Metafield createdAt
                     description
-                    metaId
+                    (MetafieldId metaId)
                     key
                     namespace
                     ownerId
@@ -56,7 +59,7 @@ instance ToJSON Metafield where
                     value
                     valueType
                     updatedAt
-                    ) = object $ [ "created_at"    .= createdAt 
+                    ) = object $ [ "created_at"    .= createdAt
                                  , "id"            .= metaId
                                  , "key"           .= key
                                  , "namespace"     .= namespace
