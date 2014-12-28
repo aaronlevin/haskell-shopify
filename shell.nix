@@ -13,6 +13,8 @@ in rec {
       haskell.dataDefault
       haskell.exceptions
       haskell.free
+      haskell.httpClient
+      haskell.httpClientTls
       haskell.httpConduit
       haskell.httpTypes
       haskell.mtl

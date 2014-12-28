@@ -16,7 +16,7 @@ import           Network.API.Shopify.Types.Image (Image)
 import           Network.API.Shopify.Types.Option (Option)
 import           Network.API.Shopify.Types.Variant (Variant)
 
-newtype ProductId = ProductId Int
+newtype ProductId = ProductId Int deriving (Eq, Ord, Show)
 
 data Product = Product { productBodyHtml :: Text
                        , productCreatedAt :: UTCTime
@@ -34,6 +34,7 @@ data Product = Product { productBodyHtml :: Text
                        , productVariants :: [Variant]
                        , productVendor :: Text
                        } 
+                       deriving (Eq, Ord, Show)
 
 splitAndFilter :: Text -> [Text]
 splitAndFilter t = filter (/= "") $ splitOn "," t

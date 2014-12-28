@@ -14,6 +14,7 @@ data InventoryPolicy = InventoryDeny
                      | InventoryContinue
                        -- ^ Customers are allowed to place orders for a product
                        --   variant when it's out of stock.
+                     deriving (Eq, Ord, Show)
 
 instance FromJSON InventoryPolicy where
   parseJSON(A.String "deny")     = return InventoryDeny

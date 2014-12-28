@@ -22,7 +22,7 @@ import           Data.Text (Text)
 import           Data.Time (UTCTime)
 import           Network.API.Shopify.Types.InventoryPolicy (InventoryPolicy)
 
-newtype VariantId = VariantId Int
+newtype VariantId = VariantId Int deriving (Eq, Ord, Show)
 
 data Variant = Variant { variantBarcode :: Maybe Text
                        , variantCompareAtPrice :: Maybe Float
@@ -47,6 +47,7 @@ data Variant = Variant { variantBarcode :: Maybe Text
                        , variantUpdatedAt :: UTCTime
                        , variantImageId :: Maybe Integer
                        }
+                       deriving (Eq, Ord, Show)
 
 emptyIsNothing :: Maybe Text -> Maybe Text
 emptyIsNothing m = m >>= (\t -> if t == "" then Nothing else Just t)

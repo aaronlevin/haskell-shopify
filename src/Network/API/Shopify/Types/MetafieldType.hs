@@ -10,6 +10,7 @@ import           Data.Aeson (FromJSON(parseJSON), ToJSON(toJSON))
 
 data MetafieldType = MetafieldString
                    | MetafieldInteger
+                   deriving (Eq, Ord, Show)
 
 instance FromJSON MetafieldType where
   parseJSON(A.String "string")  = return MetafieldString

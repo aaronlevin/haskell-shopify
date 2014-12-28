@@ -9,3 +9,4 @@ import Data.Text (Text)
 data APICredential = OAuthCred Text
                    | BasicCred Text Text
                    -- ^ BasicCred `apiKey` `password`
+                   deriving (Eq, Ord, Show)

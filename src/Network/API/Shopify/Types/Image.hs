@@ -9,7 +9,7 @@ import Control.Monad (mzero)
 import Data.Aeson ((.:), (.=), FromJSON(parseJSON), ToJSON(toJSON), object, Value(Object))
 import Data.Text (Text)
 
-data Image = Image { imageSrc :: Text }
+data Image = Image { imageSrc :: Text } deriving (Eq, Ord, Show)
 
 instance FromJSON Image where
   parseJSON (Object v) = Image <$> v .: "src"

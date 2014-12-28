@@ -15,6 +15,7 @@ data Option = Option { optionId        :: Integer
                      , optionPosition  :: Int
                      , optionProductId :: Integer
                      }
+                     deriving (Eq, Ord, Show)
 
 instance FromJSON Option where
   parseJSON (Object v) = Option <$> v .: "id"

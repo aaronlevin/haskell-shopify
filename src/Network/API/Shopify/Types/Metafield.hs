@@ -21,7 +21,7 @@ import           Data.Text (Text)
 import           Data.Time (UTCTime)
 import           Network.API.Shopify.Types.MetafieldType (MetafieldType)
 
-newtype MetafieldId = MetafieldId Int
+newtype MetafieldId = MetafieldId Int deriving (Eq, Ord, Show)
 
 data Metafield = Metafield { metafieldCreatedAt :: UTCTime
                            , metafieldDescription :: Maybe Text
@@ -34,6 +34,7 @@ data Metafield = Metafield { metafieldCreatedAt :: UTCTime
                            , metafieldType :: MetafieldType
                            , metafieldUpdatedAt :: UTCTime
                            }
+                           deriving (Eq, Ord, Show)
 
 instance FromJSON Metafield where
   parseJSON(Object v) = Metafield <$> v .:  "created_at"

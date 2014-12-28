@@ -7,3 +7,4 @@ data ShopifyError = ErrorAuthorization
                   | ErrorNetwork
                   | ErrorResponseBodyNotParseable
                   | ErrorHTTPResponseCode
+                  deriving (Eq, Ord, Show)

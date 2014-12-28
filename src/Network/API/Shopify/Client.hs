@@ -18,7 +18,6 @@ module Network.API.Shopify.Client (
 import Control.Monad.Free (Free(Free, Pure))
 import Control.Monad.Trans (MonadIO)
 import Control.Monad.Trans.Reader (ask, ReaderT)
-import Control.Monad.Trans.Resource (MonadResource)
 import Data.Aeson (decode, encode)
 import Data.ByteString.Lazy (ByteString)
 import Data.Proxy (Proxy)
@@ -258,7 +257,7 @@ decodeResponse SVariant resp = checkResponse resp >>= \_ -> case decode (respons
 
 -- | HTTP interpreter
 -- TODO: error handling
-httpShopify :: (MonadResource m, MonadIO m)
+httpShopify :: (MonadIO m)
             => Free CrudF a
             -> ReaderT (Manager, APICredential) m a
 httpShopify (Pure a) = return a
