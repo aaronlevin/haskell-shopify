@@ -12,10 +12,34 @@ import Control.Monad.Free (Free(Free, Pure))
 import Control.Monad.Trans (MonadIO, liftIO)
 import Control.Monad.Trans.Reader (ReaderT)
 import Control.Monad.Trans.Resource (MonadResource)
+import Data.Aeson (encode)
 import Data.Conduit (ResumableSource)
-import Network.HTTP.Conduit (http)
-import Network.HTTP.Client.Conduit (Manager, method, parseUrl, Response, Request(host, path,requestHeaders), withManager)
-import Network.API.Shopify.Types (Metafield, Product, Variant)
+import Data.Proxy (Proxy)
+import Network.HTTP.Conduit (http, RequestBody (RequestBodyLBS))
+import Network.HTTP.Client.Conduit (Manager, method, parseUrl, Response, Request(host, path,requestBody, requestHeaders), withManager)
+import Network.API.Shopify.Request (
+    createMetafieldReq
+  , createProductReq
+  , createVariantReq
+  , deleteMetafieldReq
+  , deleteProductReq
+  , deleteVariantReq
+  , readMetafieldReq
+  , readProductReq
+  , readProductsReq
+  , readVariantReq
+  , updateMetafieldReq
+  , updateProductReq
+  , updateVariantReq
+  )
+import Network.API.Shopify.Types (
+    Metafield
+  , MetafieldId
+  , Product
+  , ProductId
+  , Variant
+  , VariantId
+  )
 import Data.Text (Text)
 import Data.Text.Encoding (encodeUtf8)
 
@@ -46,22 +70,23 @@ type family CreateData (c :: Crudable) :: * where
     CreateData 'VariantCRUD   = Variant
 
 -- | type family mapping: (Crudable Type) X (Interface) -> required data to create
-type family UpdateData (c :: Crudable) :: * where
-    UpdateData 'MetafieldCRUD = Metafield
-    UpdateData 'ProductCRUD   = Product
-    UpdateData 'VariantCRUD   = Variant
+type family ReadData (c :: Crudable) :: * where
+    ReadData 'MetafieldCRUD = MetafieldId
+    ReadData 'ProductCRUD   = ProductId
+    ReadData 'ProductsR     = Proxy Nothing
+    ReadData 'VariantCRUD   = VariantId
 
 -- | type family mapping: (Crudable Type) X (Interface) -> required data to create
-type family ReadData (c :: Crudable) :: * where
-    ReadData 'MetafieldCRUD = Int
-    ReadData 'ProductCRUD   = Int
-    ReadData 'VariantCRUD   = Int
+type family UpdateData (c :: Crudable) :: * where
+    UpdateData 'MetafieldCRUD = (MetafieldId, Metafield)
+    UpdateData 'ProductCRUD   = (ProductId, Product)
+    UpdateData 'VariantCRUD   = (VariantId, Variant)
 
 -- | type family mapping: (Crudable Type) X (Interface) -> required data to create
 type family DeleteData (c :: Crudable) :: * where
-    DeleteData 'MetafieldCRUD = Int
-    DeleteData 'ProductCRUD   = Int
-    DeleteData 'VariantCRUD    = Int
+    DeleteData 'MetafieldCRUD = MetafieldId
+    DeleteData 'ProductCRUD   = ProductId
+    DeleteData 'VariantCRUD   = VariantId
 
 -- | various types of errors
 data ShopifyError = ErrorAuthorization
@@ -117,6 +142,94 @@ delete :: SCrudable c
        -> DeleteData c
        -> Free CrudF (Either ShopifyError ())
 delete c d = Free $ DeleteF c d Pure
+
+-- | Method to create `Request` objects for create requests.
+-- purpusefully non-exhuastive as we cannot "create" via the
+-- Products endpoint. This is still safe as any attempt to match
+-- on SProductsR will yield a type error as CreateData 'ProductsR
+-- is not specified.
+createRequest :: SCrudable c
+              -> CreateData c
+              -> OAuthToken
+              -> Request
+createRequest SMetafield d token =
+    authorizeRequest token req
+      where req = createMetafieldReq {
+                requestBody = RequestBodyLBS body
+            }
+            body = encode d
+createRequest SProduct d token =
+    authorizeRequest token req
+      where req = createProductReq {
+                requestBody = RequestBodyLBS body
+            }
+            body = encode d
+createRequest SVariant d token =
+    authorizeRequest token req
+      where req = createVariantReq {
+                requestBody = RequestBodyLBS body
+            }
+            body = encode d
+
+-- | method to create `Request` objects for read requests.
+readRequest :: SCrudable c
+            -> ReadData c
+            -> OAuthToken
+            -> Request
+readRequest SMetafield d token =
+    authorizeRequest token (readMetafieldReq d)
+readRequest SProduct d token =
+    authorizeRequest token (readProductReq d)
+readRequest SProducts _ token =
+    authorizeRequest token readProductsReq
+readRequest SVariant d token =
+    authorizeRequest token (readVariantReq d)
+
+-- | method to create `Request` objects for update requests
+updateRequest :: SCrudable c
+              -> UpdateData c
+              -> OAuthToken
+              -> Request
+updateRequest SMetafield (metafieldId,d) token =
+    authorizeRequest token req
+      where req = (updateMetafieldReq metafieldId) {
+                requestBody = RequestBodyLBS body
+            }
+            body = encode d
+updateRequest SProduct (productId,d) token =
+    authorizeRequest token req
+      where req = (updateProductReq productId) {
+                requestBody = RequestBodyLBS body
+            }
+            body = encode d
+updateRequest SVariant (variantId,d) token =
+    authorizeRequest token req
+      where req = (updateVariantReq variantId) {
+                requestBody = RequestBodyLBS body
+            }
+            body = encode d
+
+-- | method to create `Request` objects for delete requests
+deleteRequest :: SCrudable c
+              -> DeleteData c
+              -> OAuthToken
+              -> Request
+deleteRequest SMetafield d token =
+    authorizeRequest token (deleteMetafieldReq d)
+deleteRequest SProduct d token =
+    authorizeRequest token (deleteProductReq d)
+deleteRequest SVariant d token =
+    authorizeRequest token (deleteVariantReq d)
+
+
+-- | HTTP interpreter
+-- httpShopify :: (MonadResource m, MonadIO m)
+            -- => Free CrudF a
+            -- -> ReaderT (Manager, OAuthToken) m a
+-- httpShopify (Pure a) = return a
+-- httpShopify (Free (CreateF SMetafield d g)) = do
+    -- (mgr,token) <- ask
+
 
 -- | HTTP interpreter
 -- httpShopify :: (MonadResource m, MonadIO m)
