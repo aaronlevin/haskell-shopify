@@ -7,6 +7,7 @@
 
 module Network.API.Shopify.Client (
     createF
+  , CrudF(..)
   , deleteF
   , httpShopify
   , readF
@@ -43,7 +44,7 @@ import Network.API.Shopify.Request (
 import Network.API.Shopify.Types (
     Metafield
   , MetafieldId
-  , OAuthToken
+  , APICredential
   , Product
   , ProductId
   , ShopifyError(ErrorResponseBodyNotParseable, ErrorHTTPResponseCode)
@@ -153,7 +154,7 @@ deleteF c d = Free $ DeleteF c d Pure
 -- is not specified.
 createRequest :: SCrudable c
               -> CreateData c
-              -> OAuthToken
+              -> APICredential
               -> Request
 createRequest SMetafield d token =
     authorizeRequest token req
@@ -177,7 +178,7 @@ createRequest SVariant d token =
 -- | method to create `Request` objects for read requests.
 readRequest :: SCrudable c
             -> ReadData c
-            -> OAuthToken
+            -> APICredential
             -> Request
 readRequest SMetafield d token =
     authorizeRequest token (readMetafieldReq d)
@@ -191,7 +192,7 @@ readRequest SVariant d token =
 -- | method to create `Request` objects for update requests
 updateRequest :: SCrudable c
               -> UpdateData c
-              -> OAuthToken
+              -> APICredential
               -> Request
 updateRequest SMetafield (metafieldId,d) token =
     authorizeRequest token req
@@ -215,7 +216,7 @@ updateRequest SVariant (variantId,d) token =
 -- | method to create `Request` objects for delete requests
 deleteRequest :: SCrudable c
               -> DeleteData c
-              -> OAuthToken
+              -> APICredential
               -> Request
 deleteRequest SMetafield d token =
     authorizeRequest token (deleteMetafieldReq d)
@@ -259,7 +260,7 @@ decodeResponse SVariant resp = checkResponse resp >>= \_ -> case decode (respons
 -- TODO: error handling
 httpShopify :: (MonadResource m, MonadIO m)
             => Free CrudF a
-            -> ReaderT (Manager, OAuthToken) m a
+            -> ReaderT (Manager, APICredential) m a
 httpShopify (Pure a) = return a
 httpShopify (Free (CreateF s d g)) = do
     (mgr,token) <- ask
