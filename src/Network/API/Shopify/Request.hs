@@ -5,8 +5,8 @@ module Network.API.Shopify.Request where
 import Data.Default (def)
 import Data.Text (pack)
 import Data.Text.Encoding (encodeUtf8)
-import Network.API.Shopify.Types (ProductId(ProductId), MetafieldId(MetafieldId), VariantId(VariantId))
-import Network.HTTP.Client.Conduit (method, Request(host, path))
+import Network.API.Shopify.Types (MetafieldId(MetafieldId), OAuthToken(OAuthToken), ProductId(ProductId), VariantId(VariantId))
+import Network.HTTP.Client.Conduit (method, Request(host, path, requestHeaders))
 import Network.HTTP.Types.Method (methodGet, methodPost, methodPut, methodDelete)
 
 -- | default request
@@ -88,4 +88,9 @@ deleteVariantReq (VariantId i) = defaultRequest { method = methodDelete
                                                 , host = encodeUtf8 . pack $ shopifyHost
                                                 , path = encodeUtf8 . pack $ "/admin/variants/" ++ show i ++ ".json"
                                                 }
+
+-- | simple method to add the access token header to a request.
+authorizeRequest :: OAuthToken -> Request -> Request
+authorizeRequest (OAuthToken token) req = req { requestHeaders = newHeaders }
+    where newHeaders = ("X-Shopify-Access-Token", encodeUtf8 token) : requestHeaders req
 

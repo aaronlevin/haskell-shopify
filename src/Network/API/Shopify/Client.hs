@@ -6,19 +6,27 @@
 {-# LANGUAGE TypeFamilies #-}
 
 module Network.API.Shopify.Client (
+    createF
+  , deleteF
+  , httpShopify
+  , readF
+  , SCrudable(..)
+  , updateF
   ) where
 
 import Control.Monad.Free (Free(Free, Pure))
-import Control.Monad.Trans (MonadIO, liftIO)
-import Control.Monad.Trans.Reader (ReaderT)
+import Control.Monad.Trans (MonadIO)
+import Control.Monad.Trans.Reader (ask, ReaderT)
 import Control.Monad.Trans.Resource (MonadResource)
-import Data.Aeson (encode)
-import Data.Conduit (ResumableSource)
+import Data.Aeson (decode, encode)
+import Data.ByteString.Lazy (ByteString)
 import Data.Proxy (Proxy)
-import Network.HTTP.Conduit (http, RequestBody (RequestBodyLBS))
-import Network.HTTP.Client.Conduit (Manager, method, parseUrl, Response, Request(host, path,requestBody, requestHeaders), withManager)
+import Network.HTTP.Conduit (httpLbs, RequestBody (RequestBodyLBS), Response(responseBody, responseStatus))
+import Network.HTTP.Client.Conduit (Manager, Request(requestBody))
+import Network.HTTP.Types.Status (Status(Status))
 import Network.API.Shopify.Request (
-    createMetafieldReq
+    authorizeRequest
+  , createMetafieldReq
   , createProductReq
   , createVariantReq
   , deleteMetafieldReq
@@ -35,13 +43,13 @@ import Network.API.Shopify.Request (
 import Network.API.Shopify.Types (
     Metafield
   , MetafieldId
+  , OAuthToken
   , Product
   , ProductId
+  , ShopifyError(ErrorResponseBodyNotParseable, ErrorHTTPResponseCode)
   , Variant
   , VariantId
   )
-import Data.Text (Text)
-import Data.Text.Encoding (encodeUtf8)
 
 -- | crudable types
 data Crudable = MetafieldCRUD
@@ -73,7 +81,7 @@ type family CreateData (c :: Crudable) :: * where
 type family ReadData (c :: Crudable) :: * where
     ReadData 'MetafieldCRUD = MetafieldId
     ReadData 'ProductCRUD   = ProductId
-    ReadData 'ProductsR     = Proxy Nothing
+    ReadData 'ProductsR     = Proxy ()
     ReadData 'VariantCRUD   = VariantId
 
 -- | type family mapping: (Crudable Type) X (Interface) -> required data to create
@@ -87,10 +95,6 @@ type family DeleteData (c :: Crudable) :: * where
     DeleteData 'MetafieldCRUD = MetafieldId
     DeleteData 'ProductCRUD   = ProductId
     DeleteData 'VariantCRUD   = VariantId
-
--- | various types of errors
-data ShopifyError = ErrorAuthorization
-                  | ErrorNetwork
 
 -- | CRUD Algebra
 data CrudF a where
@@ -117,31 +121,30 @@ instance Functor CrudF where
   fmap f (UpdateF c d g) = UpdateF c d (f . g)
   fmap f (DeleteF c d g) = DeleteF c d (f . g)
 
-newtype OAuthToken = OAuthToken Text
 
 -- | smart create constructor.
-create :: SCrudable c
-       -> CreateData c
-       -> Free CrudF (Either ShopifyError (CrudBase c))
-create c d = Free $ CreateF c d Pure
+createF :: SCrudable c
+        -> CreateData c
+        -> Free CrudF (Either ShopifyError (CrudBase c))
+createF c d = Free $ CreateF c d Pure
 
 -- | smart read constructor.
-read :: SCrudable c
-     -> ReadData c
-     -> Free CrudF (Either ShopifyError (CrudBase c))
-read c d = Free $ ReadF c d Pure
+readF :: SCrudable c
+      -> ReadData c
+      -> Free CrudF (Either ShopifyError (CrudBase c))
+readF c d = Free $ ReadF c d Pure
 
 -- | smart update constructor.
-update :: SCrudable c
-       -> UpdateData c
-       -> Free CrudF (Either ShopifyError ())
-update c d = Free $ UpdateF c d Pure
+updateF :: SCrudable c
+        -> UpdateData c
+        -> Free CrudF (Either ShopifyError ())
+updateF c d = Free $ UpdateF c d Pure
 
 -- | smart delete constructor.
-delete :: SCrudable c
-       -> DeleteData c
-       -> Free CrudF (Either ShopifyError ())
-delete c d = Free $ DeleteF c d Pure
+deleteF :: SCrudable c
+        -> DeleteData c
+        -> Free CrudF (Either ShopifyError ())
+deleteF c d = Free $ DeleteF c d Pure
 
 -- | Method to create `Request` objects for create requests.
 -- purpusefully non-exhuastive as we cannot "create" via the
@@ -221,26 +224,56 @@ deleteRequest SProduct d token =
 deleteRequest SVariant d token =
     authorizeRequest token (deleteVariantReq d)
 
+-- | handle response codes.
+checkResponse :: Response b -> Either ShopifyError ()
+checkResponse resp = case responseStatus resp of
+    (Status 200 _) -> Right ()
+    (Status 201 _) -> Right ()
+    (Status 202 _) -> Right ()
+    (Status 203 _) -> Right ()
+    (Status 204 _) -> Right ()
+    (Status 205 _) -> Right ()
+    (Status 206 _) -> Right ()
+    _              -> Left ErrorHTTPResponseCode
+
+-- | helper method to handle http responses
+-- for type inference reasons, we need to pattern match on
+-- SCrudable type.
+decodeResponse :: SCrudable c
+               -> Response ByteString
+               -> Either ShopifyError (CrudBase c)
+decodeResponse SMetafield resp = checkResponse resp >>= \_ -> case decode (responseBody resp) of
+    Nothing  -> Left ErrorResponseBodyNotParseable
+    Just val -> Right val
+decodeResponse SProduct resp = checkResponse resp >>= \_ -> case decode (responseBody resp) of
+    Nothing  -> Left ErrorResponseBodyNotParseable
+    Just val -> Right val
+decodeResponse SProducts resp = checkResponse resp >>= \_ -> case decode (responseBody resp) of
+    Nothing  -> Left ErrorResponseBodyNotParseable
+    Just val -> Right val
+decodeResponse SVariant resp = checkResponse resp >>= \_ -> case decode (responseBody resp) of
+    Nothing  -> Left ErrorResponseBodyNotParseable
+    Just val -> Right val
 
 -- | HTTP interpreter
--- httpShopify :: (MonadResource m, MonadIO m)
-            -- => Free CrudF a
-            -- -> ReaderT (Manager, OAuthToken) m a
--- httpShopify (Pure a) = return a
--- httpShopify (Free (CreateF SMetafield d g)) = do
-    -- (mgr,token) <- ask
-
-
--- | HTTP interpreter
--- httpShopify :: (MonadResource m, MonadIO m)
-           -- => Free CrudF a
-           -- -> ReaderT Manager (ReaderT OAuthToken m) a
--- httpShopify (Pure a) = return a
--- httpShopify (Free (CrudF SHTTP SImage d g)) = do
-    -- mgr <- ask
-    -- req <- parseUrl
-
--- | simple method to add the access token header to a request.
-authorizeRequest :: OAuthToken -> Request -> Request
-authorizeRequest (OAuthToken token) req = req { requestHeaders = newHeaders }
-    where newHeaders = ("X-Shopify-Access-Token", encodeUtf8 token) : requestHeaders req
+-- TODO: error handling
+httpShopify :: (MonadResource m, MonadIO m)
+            => Free CrudF a
+            -> ReaderT (Manager, OAuthToken) m a
+httpShopify (Pure a) = return a
+httpShopify (Free (CreateF s d g)) = do
+    (mgr,token) <- ask
+    response <- httpLbs (createRequest s d token) mgr
+    httpShopify . g . decodeResponse s $ response
+httpShopify (Free (ReadF s d g)) = do
+    (mgr, token) <- ask
+    response <- httpLbs (readRequest s d token) mgr
+    httpShopify . g . decodeResponse s $ response
+httpShopify (Free (UpdateF s d g)) = do
+    (mgr, token) <- ask
+    response <- httpLbs (updateRequest s d token) mgr
+    httpShopify . g . checkResponse $ response
+httpShopify (Free (DeleteF s d g)) = do
+    (mgr, token) <- ask
+    response <- httpLbs (deleteRequest s d token) mgr
+    httpShopify . g . checkResponse $ response
