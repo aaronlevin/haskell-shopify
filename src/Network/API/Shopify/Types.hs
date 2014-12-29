@@ -1,6 +1,6 @@
 module Network.API.Shopify.Types (
     APICredential(..)
-  ,  Image(..)
+  , Image(..)
   , InventoryPolicy(..)
   , Metafield(..)
   , MetafieldId(..)
@@ -9,6 +9,7 @@ module Network.API.Shopify.Types (
   , Product(..)
   , ProductId(..)
   , ShopifyError(..)
+  , StoreName(..)
   , Variant(..)
   , VariantId(..)
   ) where
@@ -21,4 +22,5 @@ import Network.API.Shopify.Types.MetafieldType
 import Network.API.Shopify.Types.Option
 import Network.API.Shopify.Types.Product
 import Network.API.Shopify.Types.ShopifyError
+import Network.API.Shopify.Types.StoreName
 import Network.API.Shopify.Types.Variant

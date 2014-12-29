@@ -3,9 +3,9 @@
 module Network.API.Shopify.Request where
 
 import Data.Default (def)
-import Data.Text (pack)
+import Data.Text (append, pack, Text)
 import Data.Text.Encoding (encodeUtf8)
-import Network.API.Shopify.Types (MetafieldId(MetafieldId), APICredential(OAuthCred, BasicCred), ProductId(ProductId), VariantId(VariantId))
+import Network.API.Shopify.Types (MetafieldId(MetafieldId), APICredential(OAuthCred, BasicCred), ProductId(ProductId), StoreName(StoreName), VariantId(VariantId))
 import Network.HTTP.Client.Conduit (applyBasicAuth, method, Request(host, path, requestHeaders))
 import Network.HTTP.Types.Method (methodGet, methodPost, methodPut, methodDelete)
 
@@ -14,78 +14,78 @@ defaultRequest :: Request
 defaultRequest = def
 
 -- | base url
-shopifyHost :: String
-shopifyHost = "api.shopify.com"
+shopifyHost :: StoreName -> Text
+shopifyHost (StoreName storeName) = storeName `append` ".shopify.com"
 
 -- | base product urls
-createProductReq :: Request
-createProductReq = defaultRequest { method = methodPost
-                                  , host = encodeUtf8 . pack $ shopifyHost
+createProductReq :: StoreName -> Request
+createProductReq storeName = defaultRequest { method = methodPost
+                                  , host = encodeUtf8 $ shopifyHost storeName
                                   , path = encodeUtf8 . pack $ "/admin/products.json"
                                   }
-readProductReq :: ProductId -> Request
-readProductReq (ProductId i) = defaultRequest { method = methodGet
-                                              , host = encodeUtf8 . pack $ shopifyHost
+readProductReq :: StoreName -> ProductId -> Request
+readProductReq storeName (ProductId i) = defaultRequest { method = methodGet
+                                              , host = encodeUtf8 $ shopifyHost storeName
                                               ,  path = encodeUtf8 . pack $ "/admin/products/" ++ show i ++ ".json"
                                               }
-readProductsReq :: Request
-readProductsReq = defaultRequest { method = methodGet
-                                 , host = encodeUtf8 . pack $ shopifyHost
+readProductsReq :: StoreName -> Request
+readProductsReq storeName = defaultRequest { method = methodGet
+                                 , host = encodeUtf8 $ shopifyHost storeName
                                  , path = encodeUtf8 . pack $ "/admin/products.json"
                                  }
 
-updateProductReq :: ProductId -> Request
-updateProductReq (ProductId i) = defaultRequest { method = methodPut
-                                                , host = encodeUtf8 . pack $ shopifyHost
+updateProductReq :: StoreName -> ProductId -> Request
+updateProductReq storeName (ProductId i) = defaultRequest { method = methodPut
+                                                , host = encodeUtf8 $ shopifyHost storeName
                                                 , path = encodeUtf8 . pack $ "/admin/products/" ++ show i ++ ".json"
                                                 }
-deleteProductReq :: ProductId -> Request
-deleteProductReq (ProductId i) = defaultRequest { method = methodDelete
-                                                , host = encodeUtf8 . pack $ shopifyHost
+deleteProductReq :: StoreName -> ProductId -> Request
+deleteProductReq storeName (ProductId i) = defaultRequest { method = methodDelete
+                                                , host = encodeUtf8 $ shopifyHost storeName
                                                 , path = encodeUtf8 . pack $ "/admin/products/" ++ show i ++ ".json"
                                                 }
 
 -- | base metafield urls
-createMetafieldReq :: Request
-createMetafieldReq = defaultRequest { method = methodPost
-                                    , host = encodeUtf8 . pack $ shopifyHost
+createMetafieldReq :: StoreName -> Request
+createMetafieldReq storeName = defaultRequest { method = methodPost
+                                    , host = encodeUtf8 $ shopifyHost storeName
                                     , path = encodeUtf8 . pack $ "/admin/metafields.json"
                                     }
-readMetafieldReq :: MetafieldId -> Request
-readMetafieldReq (MetafieldId i) = defaultRequest { method = methodGet
-                                                  , host = encodeUtf8 . pack $ shopifyHost
+readMetafieldReq :: StoreName -> MetafieldId -> Request
+readMetafieldReq storeName (MetafieldId i) = defaultRequest { method = methodGet
+                                                  , host = encodeUtf8 $ shopifyHost storeName
                                                   , path = encodeUtf8 . pack $ "/admin/metafields/" ++ show i ++ ".json"
                                                   }
-updateMetafieldReq :: MetafieldId -> Request
-updateMetafieldReq (MetafieldId i) = defaultRequest { method = methodPut
-                                                    , host = encodeUtf8 . pack $ shopifyHost
+updateMetafieldReq :: StoreName -> MetafieldId -> Request
+updateMetafieldReq storeName (MetafieldId i) = defaultRequest { method = methodPut
+                                                    , host = encodeUtf8 $ shopifyHost storeName
                                                     , path = encodeUtf8 . pack $ "/admin/metafields/" ++ show i ++ ".json"
                                                     }
-deleteMetafieldReq :: MetafieldId -> Request
-deleteMetafieldReq (MetafieldId i) = defaultRequest { method = methodDelete
-                                                    , host = encodeUtf8 . pack $ shopifyHost
+deleteMetafieldReq :: StoreName -> MetafieldId -> Request
+deleteMetafieldReq storeName (MetafieldId i) = defaultRequest { method = methodDelete
+                                                    , host = encodeUtf8 $ shopifyHost storeName
                                                     , path = encodeUtf8 . pack $ "/admin/metafields/" ++ show i ++ ".json"
                                                     }
 
 -- | base variant urls
-createVariantReq :: Request
-createVariantReq = defaultRequest { method = methodPost
-                                  , host = encodeUtf8 . pack $ shopifyHost
+createVariantReq :: StoreName -> Request
+createVariantReq storeName = defaultRequest { method = methodPost
+                                  , host = encodeUtf8 $ shopifyHost storeName
                                   , path = encodeUtf8 . pack $ "/admin/variants.json"
                                   }
-readVariantReq :: VariantId -> Request
-readVariantReq (VariantId i) = defaultRequest { method = methodGet
-                                              , host = encodeUtf8 . pack $ shopifyHost
+readVariantReq :: StoreName -> VariantId -> Request
+readVariantReq storeName (VariantId i) = defaultRequest { method = methodGet
+                                              , host = encodeUtf8 $ shopifyHost storeName
                                               , path = encodeUtf8 . pack $ "/admin/variants/" ++ show i ++ ".json"
                                               }
-updateVariantReq :: VariantId -> Request
-updateVariantReq (VariantId i) = defaultRequest { method = methodPut
-                                                , host = encodeUtf8 . pack $ shopifyHost
+updateVariantReq :: StoreName -> VariantId -> Request
+updateVariantReq storeName (VariantId i) = defaultRequest { method = methodPut
+                                                , host = encodeUtf8 $ shopifyHost storeName
                                                 , path = encodeUtf8 . pack $ "/admin/variants/" ++ show i ++ ".json"
                                                 }
-deleteVariantReq :: VariantId -> Request
-deleteVariantReq (VariantId i) = defaultRequest { method = methodDelete
-                                                , host = encodeUtf8 . pack $ shopifyHost
+deleteVariantReq :: StoreName -> VariantId -> Request
+deleteVariantReq storeName (VariantId i) = defaultRequest { method = methodDelete
+                                                , host = encodeUtf8 $ shopifyHost storeName
                                                 , path = encodeUtf8 . pack $ "/admin/variants/" ++ show i ++ ".json"
                                                 }
 

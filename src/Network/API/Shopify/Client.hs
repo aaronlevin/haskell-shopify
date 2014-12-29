@@ -47,6 +47,7 @@ import Network.API.Shopify.Types (
   , Product
   , ProductId
   , ShopifyError(ErrorResponseBodyNotParseable, ErrorHTTPResponseCode)
+  , StoreName
   , Variant
   , VariantId
   )
@@ -153,23 +154,24 @@ deleteF c d = Free $ DeleteF c d Pure
 -- is not specified.
 createRequest :: SCrudable c
               -> CreateData c
+              -> StoreName
               -> APICredential
               -> Request
-createRequest SMetafield d token =
-    authorizeRequest token req
-      where req = createMetafieldReq {
+createRequest SMetafield d storeName cred =
+    authorizeRequest cred req
+      where req = (createMetafieldReq storeName) {
                 requestBody = RequestBodyLBS body
             }
             body = encode d
-createRequest SProduct d token =
-    authorizeRequest token req
-      where req = createProductReq {
+createRequest SProduct d storeName cred =
+    authorizeRequest cred req
+      where req = (createProductReq storeName) {
                 requestBody = RequestBodyLBS body
             }
             body = encode d
-createRequest SVariant d token =
-    authorizeRequest token req
-      where req = createVariantReq {
+createRequest SVariant d storeName cred =
+    authorizeRequest cred req
+      where req = (createVariantReq storeName) {
                 requestBody = RequestBodyLBS body
             }
             body = encode d
@@ -177,37 +179,39 @@ createRequest SVariant d token =
 -- | method to create `Request` objects for read requests.
 readRequest :: SCrudable c
             -> ReadData c
+            -> StoreName
             -> APICredential
             -> Request
-readRequest SMetafield d token =
-    authorizeRequest token (readMetafieldReq d)
-readRequest SProduct d token =
-    authorizeRequest token (readProductReq d)
-readRequest SProducts _ token =
-    authorizeRequest token readProductsReq
-readRequest SVariant d token =
-    authorizeRequest token (readVariantReq d)
+readRequest SMetafield d storeName cred =
+    authorizeRequest cred (readMetafieldReq storeName d)
+readRequest SProduct d storeName cred =
+    authorizeRequest cred (readProductReq storeName d)
+readRequest SProducts _ storeName cred =
+    authorizeRequest cred (readProductsReq storeName)
+readRequest SVariant d storeName cred =
+    authorizeRequest cred (readVariantReq storeName d)
 
 -- | method to create `Request` objects for update requests
 updateRequest :: SCrudable c
               -> UpdateData c
+              -> StoreName
               -> APICredential
               -> Request
-updateRequest SMetafield (metafieldId,d) token =
-    authorizeRequest token req
-      where req = (updateMetafieldReq metafieldId) {
+updateRequest SMetafield (metafieldId,d) storeName cred =
+    authorizeRequest cred req
+      where req = (updateMetafieldReq storeName metafieldId) {
                 requestBody = RequestBodyLBS body
             }
             body = encode d
-updateRequest SProduct (productId,d) token =
-    authorizeRequest token req
-      where req = (updateProductReq productId) {
+updateRequest SProduct (productId,d) storeName cred =
+    authorizeRequest cred req
+      where req = (updateProductReq storeName productId) {
                 requestBody = RequestBodyLBS body
             }
             body = encode d
-updateRequest SVariant (variantId,d) token =
-    authorizeRequest token req
-      where req = (updateVariantReq variantId) {
+updateRequest SVariant (variantId,d) storeName cred =
+    authorizeRequest cred req
+      where req = (updateVariantReq storeName variantId) {
                 requestBody = RequestBodyLBS body
             }
             body = encode d
@@ -215,14 +219,15 @@ updateRequest SVariant (variantId,d) token =
 -- | method to create `Request` objects for delete requests
 deleteRequest :: SCrudable c
               -> DeleteData c
+              -> StoreName
               -> APICredential
               -> Request
-deleteRequest SMetafield d token =
-    authorizeRequest token (deleteMetafieldReq d)
-deleteRequest SProduct d token =
-    authorizeRequest token (deleteProductReq d)
-deleteRequest SVariant d token =
-    authorizeRequest token (deleteVariantReq d)
+deleteRequest SMetafield d storeName cred =
+    authorizeRequest cred (deleteMetafieldReq storeName d)
+deleteRequest SProduct d storeName cred =
+    authorizeRequest cred (deleteProductReq storeName d)
+deleteRequest SVariant d storeName cred =
+    authorizeRequest cred (deleteVariantReq storeName d)
 
 -- | handle response codes.
 checkResponse :: Response b -> Either ShopifyError ()
@@ -259,21 +264,21 @@ decodeResponse SVariant resp = checkResponse resp >>= \_ -> case decode (respons
 -- TODO: error handling
 httpShopify :: (MonadIO m)
             => Free CrudF a
-            -> ReaderT (Manager, APICredential) m a
+            -> ReaderT (Manager, StoreName, APICredential) m a
 httpShopify (Pure a) = return a
 httpShopify (Free (CreateF s d g)) = do
-    (mgr,token) <- ask
-    response <- httpLbs (createRequest s d token) mgr
+    (mgr, storeName, cred) <- ask
+    response <- httpLbs (createRequest s d storeName cred) mgr
     httpShopify . g . decodeResponse s $ response
 httpShopify (Free (ReadF s d g)) = do
-    (mgr, token) <- ask
-    response <- httpLbs (readRequest s d token) mgr
+    (mgr, storeName, cred) <- ask
+    response <- httpLbs (readRequest s d storeName cred) mgr
     httpShopify . g . decodeResponse s $ response
 httpShopify (Free (UpdateF s d g)) = do
-    (mgr, token) <- ask
-    response <- httpLbs (updateRequest s d token) mgr
+    (mgr, storeName, cred) <- ask
+    response <- httpLbs (updateRequest s d storeName cred) mgr
     httpShopify . g . checkResponse $ response
 httpShopify (Free (DeleteF s d g)) = do
-    (mgr, token) <- ask
-    response <- httpLbs (deleteRequest s d token) mgr
+    (mgr, storeName, cred) <- ask
+    response <- httpLbs (deleteRequest s d storeName cred) mgr
     httpShopify . g . checkResponse $ response
