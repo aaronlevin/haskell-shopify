@@ -19,7 +19,8 @@ getProducts = do
 
 main :: IO ()
 main = do
-  (apiKey:password:_) <- getArgs
+  (sName:apiKey:password:_) <- getArgs
   let auth = BasicCred (pack apiKey) (pack password)
-  products <- withManager tlsManagerSettings $ \mgr -> runReaderT (httpShopify getProducts) (mgr,auth)
+  let storeName = StoreName (pack sName)
+  products <- withManager tlsManagerSettings $ \mgr -> runReaderT (httpShopify getProducts) (mgr,storeName,auth)
   print products

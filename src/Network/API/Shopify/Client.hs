@@ -16,13 +16,12 @@ module Network.API.Shopify.Client (
   ) where
 
 import Control.Monad.Free (Free(Free, Pure))
-import Control.Monad.Trans (MonadIO)
+import Control.Monad.Trans (liftIO, MonadIO)
 import Control.Monad.Trans.Reader (ask, ReaderT)
 import Data.Aeson (decode, encode)
 import Data.ByteString.Lazy (ByteString)
 import Data.Proxy (Proxy)
-import Network.HTTP.Conduit (httpLbs, RequestBody (RequestBodyLBS), Response(responseBody, responseStatus))
-import Network.HTTP.Client.Conduit (Manager, Request(requestBody))
+import Network.HTTP.Client (httpLbs, Manager, RequestBody (RequestBodyLBS), Response(responseBody, responseStatus), Request(requestBody))
 import Network.HTTP.Types.Status (Status(Status))
 import Network.API.Shopify.Request (
     authorizeRequest
@@ -268,17 +267,17 @@ httpShopify :: (MonadIO m)
 httpShopify (Pure a) = return a
 httpShopify (Free (CreateF s d g)) = do
     (mgr, storeName, cred) <- ask
-    response <- httpLbs (createRequest s d storeName cred) mgr
+    response <- liftIO $ httpLbs (createRequest s d storeName cred) mgr
     httpShopify . g . decodeResponse s $ response
 httpShopify (Free (ReadF s d g)) = do
     (mgr, storeName, cred) <- ask
-    response <- httpLbs (readRequest s d storeName cred) mgr
+    response <- liftIO $ httpLbs (readRequest s d storeName cred) mgr
     httpShopify . g . decodeResponse s $ response
 httpShopify (Free (UpdateF s d g)) = do
     (mgr, storeName, cred) <- ask
-    response <- httpLbs (updateRequest s d storeName cred) mgr
+    response <- liftIO $ httpLbs (updateRequest s d storeName cred) mgr
     httpShopify . g . checkResponse $ response
 httpShopify (Free (DeleteF s d g)) = do
     (mgr, storeName, cred) <- ask
-    response <- httpLbs (deleteRequest s d storeName cred) mgr
+    response <- liftIO $ httpLbs (deleteRequest s d storeName cred) mgr
     httpShopify . g . checkResponse $ response

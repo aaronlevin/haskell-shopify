@@ -9,13 +9,11 @@ in rec {
       # build depends
       haskell.aeson
       haskell.comonad
-      haskell.conduit
       haskell.dataDefault
       haskell.exceptions
       haskell.free
       haskell.httpClient
       haskell.httpClientTls
-      haskell.httpConduit
       haskell.httpTypes
       haskell.mtl
       haskell.resourcet
