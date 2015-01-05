@@ -6,7 +6,7 @@ import Data.Default (def)
 import Data.Text (append, pack, Text)
 import Data.Text.Encoding (encodeUtf8)
 import Network.API.Shopify.Types (MetafieldId(MetafieldId), APICredential(OAuthCred, BasicCred), ProductId(ProductId), StoreName(StoreName), VariantId(VariantId))
-import Network.HTTP.Client (applyBasicAuth, method, Request(host, path, requestHeaders, secure))
+import Network.HTTP.Client (applyBasicAuth, method, Request(host, path, port, requestHeaders, secure))
 import Network.HTTP.Types.Method (methodGet, methodPost, methodPut, methodDelete)
 
 -- | default request
@@ -23,18 +23,21 @@ createProductReq storeName = defaultRequest { method = methodPost
                                   , host = encodeUtf8 $ shopifyHost storeName
                                   , path = encodeUtf8 . pack $ "/admin/products.json"
                                   , secure = True
+                                  , port = 443
                                   }
 readProductReq :: StoreName -> ProductId -> Request
 readProductReq storeName (ProductId i) = defaultRequest { method = methodGet
                                               , host = encodeUtf8 $ shopifyHost storeName
                                               ,  path = encodeUtf8 . pack $ "/admin/products/" ++ show i ++ ".json"
                                               , secure = True
+                                              , port = 443
                                               }
 readProductsReq :: StoreName -> Request
 readProductsReq storeName = defaultRequest { method = methodGet
                                  , host = encodeUtf8 $ shopifyHost storeName
                                  , path = encodeUtf8 . pack $ "/admin/products.json"
                                  , secure = True
+                                 , port = 443
                                  }
 
 updateProductReq :: StoreName -> ProductId -> Request
@@ -42,12 +45,14 @@ updateProductReq storeName (ProductId i) = defaultRequest { method = methodPut
                                                 , host = encodeUtf8 $ shopifyHost storeName
                                                 , path = encodeUtf8 . pack $ "/admin/products/" ++ show i ++ ".json"
                                                 , secure = True
+                                                , port = 443
                                                 }
 deleteProductReq :: StoreName -> ProductId -> Request
 deleteProductReq storeName (ProductId i) = defaultRequest { method = methodDelete
                                                 , host = encodeUtf8 $ shopifyHost storeName
                                                 , path = encodeUtf8 . pack $ "/admin/products/" ++ show i ++ ".json"
                                                 , secure = True
+                                                , port = 443
                                                 }
 
 -- | base metafield urls
@@ -56,24 +61,28 @@ createMetafieldReq storeName = defaultRequest { method = methodPost
                                     , host = encodeUtf8 $ shopifyHost storeName
                                     , path = encodeUtf8 . pack $ "/admin/metafields.json"
                                     , secure = True
+                                    , port = 443
                                     }
 readMetafieldReq :: StoreName -> MetafieldId -> Request
 readMetafieldReq storeName (MetafieldId i) = defaultRequest { method = methodGet
                                                   , host = encodeUtf8 $ shopifyHost storeName
                                                   , path = encodeUtf8 . pack $ "/admin/metafields/" ++ show i ++ ".json"
                                                   , secure = True
+                                                  , port = 443
                                                   }
 updateMetafieldReq :: StoreName -> MetafieldId -> Request
 updateMetafieldReq storeName (MetafieldId i) = defaultRequest { method = methodPut
                                                     , host = encodeUtf8 $ shopifyHost storeName
                                                     , path = encodeUtf8 . pack $ "/admin/metafields/" ++ show i ++ ".json"
                                                     , secure = True
+                                                    , port = 443
                                                     }
 deleteMetafieldReq :: StoreName -> MetafieldId -> Request
 deleteMetafieldReq storeName (MetafieldId i) = defaultRequest { method = methodDelete
                                                     , host = encodeUtf8 $ shopifyHost storeName
                                                     , path = encodeUtf8 . pack $ "/admin/metafields/" ++ show i ++ ".json"
                                                     , secure = True
+                                                    , port = 443
                                                     }
 
 -- | base variant urls
@@ -82,24 +91,28 @@ createVariantReq storeName = defaultRequest { method = methodPost
                                   , host = encodeUtf8 $ shopifyHost storeName
                                   , path = encodeUtf8 . pack $ "/admin/variants.json"
                                   , secure = True
+                                  , port = 443
                                   }
 readVariantReq :: StoreName -> VariantId -> Request
 readVariantReq storeName (VariantId i) = defaultRequest { method = methodGet
                                               , host = encodeUtf8 $ shopifyHost storeName
                                               , path = encodeUtf8 . pack $ "/admin/variants/" ++ show i ++ ".json"
                                               , secure = True
+                                              , port = 443
                                               }
 updateVariantReq :: StoreName -> VariantId -> Request
 updateVariantReq storeName (VariantId i) = defaultRequest { method = methodPut
                                                 , host = encodeUtf8 $ shopifyHost storeName
                                                 , path = encodeUtf8 . pack $ "/admin/variants/" ++ show i ++ ".json"
                                                 , secure = True
+                                                , port = 443
                                                 }
 deleteVariantReq :: StoreName -> VariantId -> Request
 deleteVariantReq storeName (VariantId i) = defaultRequest { method = methodDelete
                                                 , host = encodeUtf8 $ shopifyHost storeName
                                                 , path = encodeUtf8 . pack $ "/admin/variants/" ++ show i ++ ".json"
                                                 , secure = True
+                                                , port = 443
                                                 }
 
 -- | simple method to add the access token header to a request.
