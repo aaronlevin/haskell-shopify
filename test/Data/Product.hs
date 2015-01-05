@@ -236,3 +236,71 @@ product = [r|
    }
 }
 |]
+
+wyrdDistroProduct :: String
+wyrdDistroProduct = [r|
+  {
+    "product": {
+        "body_html": "\u003Cp\u003E\u003Cspan style=\"line-height: 1.2;\"\u003ELimited to 30 copies. Top noise tape of 2013.\u003C/span\u003E\u003C/p\u003E",
+        "created_at": "2014-02-15T09:48:53-05:00",
+        "handle": "termina-let-this-rotting-world-empty",
+        "id": 240385833,
+        "product_type": "Cassette",
+        "published_at": "2014-02-15T09:48:53-05:00",
+        "published_scope": "global",
+        "template_suffix": null,
+        "title": "Termina - Let This Rotting World Empty",
+        "updated_at": "2014-12-20T18:59:28-05:00",
+        "vendor": "Magic Mother",
+        "tags": "cassette, experimental, Montréal, quebec",
+        "variants": [{
+            "barcode": null,
+            "compare_at_price": null,
+            "created_at": "2014-02-15T09:48:53-05:00",
+            "fulfillment_service": "manual",
+            "grams": 65,
+            "id": 545421333,
+            "inventory_management": "shopify",
+            "inventory_policy": "deny",
+            "option1": "Cassette",
+            "option2": null,
+            "option3": null,
+            "position": 1,
+            "price": "7.00",
+            "product_id": 240385833,
+            "requires_shipping": true,
+            "sku": "WC-CASS-054075",
+            "taxable": true,
+            "title": "Cassette",
+            "updated_at": "2014-12-20T18:59:28-05:00",
+            "inventory_quantity": 0,
+            "old_inventory_quantity": 0,
+            "image_id": null
+        }],
+        "options": [{
+            "id": 285872941,
+            "name": "Title",
+            "position": 1,
+            "product_id": 240385833
+        }],
+        "images": [{
+            "created_at": "2014-03-12T23:49:02-04:00",
+            "id": 586546377,
+            "position": 1,
+            "product_id": 240385833,
+            "updated_at": "2014-03-12T23:49:02-04:00",
+            "src": "https://cdn.shopify.com/s/files/1/0250/7563/products/Wyrd_Distro-Termina-Let_This_Rotting_World_Empty-new.JPG?v=1394682542",
+            "variant_ids": []
+        }],
+        "image": {
+            "created_at": "2014-03-12T23:49:02-04:00",
+            "id": 586546377,
+            "position": 1,
+            "product_id": 240385833,
+            "updated_at": "2014-03-12T23:49:02-04:00",
+            "src": "https://cdn.shopify.com/s/files/1/0250/7563/products/Wyrd_Distro-Termina-Let_This_Rotting_World_Empty-new.JPG?v=1394682542",
+            "variant_ids": []
+        }
+    }
+}
+|]

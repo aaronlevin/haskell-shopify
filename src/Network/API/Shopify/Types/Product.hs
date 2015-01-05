@@ -9,12 +9,14 @@ import           Control.Applicative ((<$>), (<*>))
 import           Control.Monad (mzero)
 import           Data.Aeson ((.:), (.:?), (.=), FromJSON(parseJSON), object, ToJSON(toJSON), Value(Object))
 import qualified Data.Aeson as A
+import           Data.HashMap.Strict (lookup)
 import           Data.Maybe (catMaybes)
 import           Data.Text (intercalate, splitOn, Text)
 import           Data.Time.Clock (UTCTime)
 import           Network.API.Shopify.Types.Image (Image)
 import           Network.API.Shopify.Types.Option (Option)
 import           Network.API.Shopify.Types.Variant (Variant)
+import           Prelude hiding (lookup)
 
 newtype ProductId = ProductId Int deriving (Eq, Ord, Show)
 
@@ -40,7 +42,8 @@ splitAndFilter :: Text -> [Text]
 splitAndFilter t = filter (/= "") $ splitOn "," t
 
 instance FromJSON Product where
-  parseJSON (Object v) = Product <$> v .: "body_html"
+  parseJSON (Object o) = case lookup "product" o of
+    (Just (Object v)) -> Product <$> v .: "body_html"
                                  <*> v .: "created_at"
                                  <*> v .: "handle"
                                  <*> (ProductId <$> v .: "id")
@@ -55,6 +58,7 @@ instance FromJSON Product where
                                  <*> v .: "updated_at"
                                  <*> v .: "variants"
                                  <*> v .: "vendor"
+    _ -> mzero
   parseJSON _          = mzero
 
 instance ToJSON Product where
@@ -73,19 +77,20 @@ instance ToJSON Product where
                   pUpdatedAt
                   pVariants
                   pVendor
-                  ) = object $ [ "body_html"       .= pBody 
-                               , "created_at"      .= pCreatedAt
-                               , "handle"          .= pHandle
-                               , "id"              .= pId
-                               , "images"          .= pImages
-                               , "options"         .= pOptions
-                               , "product_type"    .= pType
-                               , "published_at"    .= pPublishedAt
-                               , "published_scope" .= pPublishedScope
-                               , "tags"            .= intercalate "," pTags
-                               , "title"           .= pTitle
-                               , "updated_at"      .= pUpdatedAt
-                               , "variants"        .= pVariants
-                               , "vendor"          .= pVendor
-                               ] ++ catMaybes
-                               [ ("template_suffix" .=) . A.String <$> pTemplateSuffix ]
+                  ) = object [ "product" .= productObject ]
+                    where productObject = object $ [ "body_html"       .= pBody
+                                                   , "created_at"      .= pCreatedAt
+                                                   , "handle"          .= pHandle
+                                                   , "id"              .= pId
+                                                   , "images"          .= pImages
+                                                   , "options"         .= pOptions
+                                                   , "product_type"    .= pType
+                                                   , "published_at"    .= pPublishedAt
+                                                   , "published_scope" .= pPublishedScope
+                                                   , "tags"            .= intercalate "," pTags
+                                                   , "title"           .= pTitle
+                                                   , "updated_at"      .= pUpdatedAt
+                                                   , "variants"        .= pVariants
+                                                   , "vendor"          .= pVendor
+                                                   ] ++ catMaybes
+                                                   [ ("template_suffix" .=) . A.String <$> pTemplateSuffix ]
